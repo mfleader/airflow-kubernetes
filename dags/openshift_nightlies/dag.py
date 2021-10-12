@@ -132,6 +132,7 @@ class BaremetalOpenshiftNightlyDAG(AbstractOpenshiftNightlyDAG):
             chain(*benchmark_tasks)
         return benchmarks
 
+
 class OpenstackNightlyDAG(AbstractOpenshiftNightlyDAG):
     def build(self):
         installer = self._get_openshift_installer()

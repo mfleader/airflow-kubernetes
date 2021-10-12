@@ -41,6 +41,31 @@ class Manifest():
                         }
                     )
 
+    def get_matt_releases(self):
+        for version in self.yaml['platforms'].get('matt', []):
+            version_number = version['version']
+            release_stream = version['releaseStream']
+            version_alias = self.get_version_alias(version_number)
+            schedule = self._get_schedule_for_platform('cloud')
+            for cloud_provider in version['providers']:
+                platform_name = cloud_provider['name']
+                for profile in cloud_provider['profiles']:
+                    release = OpenshiftRelease(
+                        platform=platform_name,
+                        version=version_number,
+                        release_stream=release_stream,
+                        profile=profile,
+                        version_alias=version_alias
+                    )
+                    dag_config = self._build_dag_config(schedule)
+
+                    self.releases.append(
+                        {
+                            "config": dag_config,
+                            "release": release
+                        }
+                    )
+
     def get_baremetal_releases(self):
         for version in self.yaml['platforms'].get('baremetal', []):
             version_number = version['version']
@@ -117,6 +142,7 @@ class Manifest():
         self.get_baremetal_releases()
         self.get_openstack_releases()
         self.get_rosa_releases()
+        self.get_matt_releases()
         return self.releases
 
     def _get_schedule_for_platform(self, platform):
