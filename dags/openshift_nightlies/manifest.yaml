@@ -26,7 +26,7 @@ platforms:
       providers:
       - name: aws
         profiles:
-          - default
+        - default
   cloud:
     - version: 4.8
       releaseStream: 4.8.0-0.nightly
