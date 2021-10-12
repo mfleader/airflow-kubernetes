@@ -21,7 +21,7 @@ dagConfig:
 
 platforms:
   matt:
-    - version: 4.10
+    - version: "4.10"
       releaseStream: 4.10.0.0-nightly
       providers:
       - name: aws
