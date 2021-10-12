@@ -113,8 +113,8 @@ class BaremetalOpenshiftNightlyDAG(AbstractOpenshiftNightlyDAG):
         scaleup_cluster = bm_installer.get_scaleup_task()
         benchmark_stg_3 = self._add_benchmarks(task_group="webfuse-bench")
 
-        install_cluster >> benchmark_stg_1 
-        install_cluster >> scaleup_cluster >> benchmark_stg_2 
+        install_cluster >> benchmark_stg_1
+        install_cluster >> scaleup_cluster >> benchmark_stg_2
         scaleup_cluster >> deploy_webfuse >> benchmark_stg_3
 
     def _get_openshift_installer(self):
@@ -165,6 +165,25 @@ class RosaNightlyDAG(AbstractOpenshiftNightlyDAG):
         return rosa.RosaInstaller(self.dag, self.config, self.release)
 
 
+class MattCloudOpenshiftNightlyDAG(AbstractOpenshiftNightlyDAG):
+    def build(self):
+        installer = self._get_openshift_installer()
+        install_cluster = installer.get_install_task()
+
+        with TaskGroup("utils", prefix_group_id=False, dag=self.dag) as utils:
+            util_tasks = self._get_scale_ci_diagnosis().get_utils()
+            chain(*util_tasks)
+
+        if self.config.cleanup_on_success:
+            cleanup_cluster = installer.get_cleanup_task()
+            install_cluster >> utils >> cleanup_cluster
+        else:
+            install_cluster
+
+    def _get_openshift_installer(self):
+        return openshift.CloudOpenshiftInstaller(self.dag, self.config, self.release)
+
+
 
 def build_releases():
     release_manifest = manifest.Manifest(constants.root_dag_dir)
@@ -178,6 +197,8 @@ def build_releases():
             nightly = OpenstackNightlyDAG(openshift_release, dag_config)
         elif openshift_release.platform == "rosa":
             nightly = RosaNightlyDAG(openshift_release, dag_config)
+        elif openshift_release.platform == "matt":
+            nightly = MattCloudOpenshiftNightlyDAG(openshift_release, dag_config)
         else:
             nightly = CloudOpenshiftNightlyDAG(openshift_release, dag_config)
 

@@ -13,13 +13,20 @@ dagConfig:
     enabled: true
     default: "0 12 * * 1,3,5"
     openstack: "0 12 * * 1-6"
-  cleanupOnSuccess: true
+  cleanupOnSuccess: false
   executorImages:
     repository: quay.io/cloud-bulldozer
     tag: 2.1.3
 
 
 platforms:
+  matt:
+    - version: 4.10
+      releaseStream: 4.10.0.0-nightly
+      providers:
+      - name: aws
+        profiles:
+          - default
   cloud:
     - version: 4.8
       releaseStream: 4.8.0-0.nightly
@@ -59,13 +66,13 @@ platforms:
         - default
       - name: gcp
         profiles:
-        - default    
+        - default
   baremetal:
     - version: 4.7
       releaseStream: latest-4.7
       build: dev
       profiles:
-      - jetski  
+      - jetski
     - version: 4.8
       releaseStream: latest-4.8
       build: dev
@@ -75,7 +82,7 @@ platforms:
       releaseStream: latest-4.9
       build: dev
       profiles:
-      - jetski      
+      - jetski
   openstack:
     - version: 4.7
       releaseStream: 4.7.0-0.nightly
